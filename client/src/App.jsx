@@ -24,9 +24,9 @@ const App = (props) => {
     });
 
     socket.on('chat message', (msg) => {
-      let list = listOfMessages;
-      listOfMessages.push(msg);
-      setListOfMessages(listOfMessages);
+      // let list = listOfMessages;
+      // listOfMessages.push(msg);
+      setListOfMessages([...listOfMessages, msg]);
     });
 
     return () => {
@@ -34,7 +34,7 @@ const App = (props) => {
       socket.off('disconnect');
       socket.off('pong');
     }
-  }, []);
+  },[listOfMessages]);
 
   const sendPing = () => {
     socket.emit('ping');
@@ -42,10 +42,11 @@ const App = (props) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (message.length > 0) {
-      setMessage('');
-      socket.emit('chat message', message);
+    if (message === '') {
+      return
     }
+    socket.emit('chat message', message);
+    setMessage('')
   }
 
   return (
@@ -59,7 +60,7 @@ const App = (props) => {
         })}
       </Messages>
       <MessageForm id="form" >
-        <MessageInput id="input" type="text" autocomplete="off" onChange={(event) => {setMessage(event.target.value)}}/>
+        <MessageInput id="input" type="text" value={message}autocomplete="off" onChange={(event) => {setMessage(event.target.value)}}/>
         <SendButton onClick={(event) => {handleSubmit(event)}}>Send</SendButton>
       </MessageForm>
     </div>

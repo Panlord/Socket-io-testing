@@ -18,14 +18,14 @@ app.get('/', (request, response) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  console.log('a user connected:', socket.id);
   socket.on('chat message', (msg) => {
-    console.log('message: ' + msg);
-    io.emit('chat message', msg);
+    console.log(`${msg} from ${socket.id}`);
+    socket.emit('chat message', msg);
   });
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
+  // socket.on('disconnect', () => {
+  //   console.log('user disconnected');
+  // });
 });
 
 server.listen(3000, () => {
