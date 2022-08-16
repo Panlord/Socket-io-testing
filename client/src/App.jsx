@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,Alert} from 'react';
 import styled from 'styled-components';
 import io from 'socket.io-client';
 
@@ -9,6 +9,20 @@ const App = (props) => {
   const [lastPong, setLastPong] = useState(null);
   const [message, setMessage] = useState('');
   const [listOfMessages, setListOfMessages] = useState([]);
+  const [name, setName] = useState('');
+
+  //shoud get name from parent props
+
+  useEffect( () => {
+    if (props.userName !== '') {
+      setName(props.userName)
+      socket.emit('new-user', name);
+    }
+
+  },[name])
+  //socket.emit('new-user', name);
+
+
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -26,15 +40,26 @@ const App = (props) => {
     socket.on('chat message', (msg) => {
       // let list = listOfMessages;
       // listOfMessages.push(msg);
-      setListOfMessages([...listOfMessages, msg]);
+      let message = `${msg.name} :${msg.msg}`
+      setListOfMessages([...listOfMessages, message]);
     });
+
+
+
+    socket.on('user-connected', name => {
+      if (name !== '') {
+
+        let msg = `${name} is connceted`
+        setListOfMessages([...listOfMessages, msg])
+      }
+    })
 
     return () => {
       socket.off('connect');
       socket.off('disconnect');
       socket.off('pong');
     }
-  },[listOfMessages]);
+  },[listOfMessages, socket]);
 
   const sendPing = () => {
     socket.emit('ping');
