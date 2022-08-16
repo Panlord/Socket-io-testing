@@ -17,15 +17,24 @@ app.get('/', (request, response) => {
   });
 });
 
+const user = {}
 io.on('connection', (socket) => {
   console.log('a user connected:', socket.id);
+
   socket.on('chat message', (msg) => {
     console.log(`${msg} from ${socket.id}`);
-    io.emit('chat message', msg);
+    io.emit('chat message', {name:user[socket.id], msg:msg});
   });
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
+
+  socket.on('new-user', name => {
+    user[socket.id] = name
+    console.log('this is the name', name)
+    io.emit('user-connected', name)
+  })
+
+  // socket.on('disconnect', () => {
+  //   console.log('user disconnected');
+  // });
 });
 
 server.listen(3000, () => {
